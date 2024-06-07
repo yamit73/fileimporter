@@ -1,0 +1,8 @@
+[
+  {
+    "class": "File",
+    "method": "GET",
+    "route": "/file",
+    "handler":"getData"
+  }
+]
