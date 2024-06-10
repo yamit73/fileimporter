@@ -3,7 +3,7 @@ import { BaseModel, IBaseModel } from "./BaseModel";
 interface IProduct extends IBaseModel {
   title: string;
   description: string;
-  price: number;
+  price: number | null;
   qty: number;
   sku: string;
   brand: string;
@@ -11,8 +11,10 @@ interface IProduct extends IBaseModel {
   main_image: string;
   additional_images: string[];
   category?: string | null;
-  sale_price?: number;
+  sale_price?: number | null;
   group_id: string;
+  additional_attibutes: { [key: string]: any } | null;
+  [key: string]: any;
 }
 
 class ProductModel extends BaseModel<IProduct> {
@@ -29,11 +31,11 @@ class ProductModel extends BaseModel<IProduct> {
     }
   }
 
-  async deleteProducts(query: Partial<any>): Promise<boolean> {
+  async deleteProducts(query: Partial<any>): Promise<boolean | number> {
     try {
       await this.init();
       const result = await this.collection?.deleteMany(query);
-      return true;
+      return result?.deletedCount ?? 0 > 0;
     } catch (error) {
       throw error;
     }

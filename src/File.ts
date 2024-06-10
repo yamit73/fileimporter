@@ -6,6 +6,7 @@ import https from "https";
 import pino from "pino";
 import Log from "./Log";
 import csv from "csv-parser";
+import Products from "./Products";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -99,7 +100,11 @@ class File implements FileInterface {
             reject(error);
           });
       });
-      res.status(200).json({ success: true, data: result });
+      const prodObj = new Products();
+      const createResponse = await prodObj.createProducts(result);
+      res
+        .status(200)
+        .json({ success: true, create_response: createResponse, data: result });
     } catch (error: any) {
       res.status(500).json({ success: false, errors: [error.message] });
     }
