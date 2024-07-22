@@ -9,6 +9,8 @@ import MongoDb from "../MongoDb";
 
 interface IBaseModel extends Document {
   _id?: ObjectId;
+  created_at?: string;
+  updated_at?: string;
 }
 class BaseModel<T extends IBaseModel> {
   protected collection?: Collection<T>;
@@ -19,12 +21,13 @@ class BaseModel<T extends IBaseModel> {
     this.collection = await connection.getCollection<T>(this.collectionName);
   }
 
-  async create(data: OptionalUnlessRequiredId<T>): Promise<ObjectId | null> {
+  async create(data: Partial<T>): Promise<ObjectId | null> {
     if (!this.collection) {
       throw new Error("Call init first!!");
     }
     try {
-      const result = await this.collection.insertOne(data);
+      data["created_at"] = new Date().toISOString();
+      const result = await this.collection.insertOne(data as OptionalUnlessRequiredId<T>);
       return result.insertedId;
     } catch (error) {
       throw error;
@@ -33,13 +36,24 @@ class BaseModel<T extends IBaseModel> {
 
   async update(
     query: Partial<any>,
-    data: OptionalUnlessRequiredId<T>
+    data: Partial<T>,
+    upsert: boolean = false
   ): Promise<boolean> {
     try {
       if (!this.collection) {
         throw new Error("Call init first!!");
       }
-      const result = await this.collection.updateOne(query, data);
+      data["updated_at"] = new Date().toISOString();
+      let result: any;
+      if (!upsert) {
+        result = await this.collection.updateOne(query, { $set: data });
+      } else {
+        result = await this.collection.updateOne(
+          query,
+          { $set: data },
+          { upsert: true }
+        );
+      }
       return result.modifiedCount > 0;
     } catch (error) {
       throw error;

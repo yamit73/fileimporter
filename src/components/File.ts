@@ -1,4 +1,4 @@
-import { FileInterface, response } from "./interfaces/FileInterface";
+import { FileInterface, response } from "../interfaces/FileInterface";
 import { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
@@ -6,21 +6,21 @@ import https from "https";
 import pino from "pino";
 import Log from "./Log";
 import csv from "csv-parser";
-import Products from "./Products";
+import Products from "../components/Products";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 class File implements FileInterface {
   _filePath: string;
-  _logger: pino.Logger;
+  // _logger: pino.Logger;
 
   parentDirPath: string;
   _fileUrl =
     "https://fbuploadfiles.s3.us-east-2.amazonaws.com/408504410555913.csv";
 
   constructor(filePath?: string) {
-    Log.setLogFile("csv.log");
-    this._logger = Log.getInstance();
+    // Log.setLogFile("csv.log");
+    // this._logger = Log.getInstance();
     this._filePath = filePath ?? path.join(__dirname, "..", "csvfiles");
     this.parentDirPath = path.dirname(this._filePath);
   }
@@ -83,7 +83,7 @@ class File implements FileInterface {
           .pipe(csv())
           .on("headers", (headerList) => {
             headers = headerList;
-            this._logger.info(headers);
+            // this._logger.info(headers);
           })
           .on("data", (row) => {
             rowCount++;

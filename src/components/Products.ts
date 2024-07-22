@@ -1,5 +1,6 @@
 import { AnyBulkWriteOperation } from "mongodb";
-import { IProduct, ProductModel } from "./models/ProductModel";
+import { IProduct, ProductModel } from "../models/ProductModel";
+import { AttributeMapping } from "../models/AttributeMapping";
 
 class Products {
   model: ProductModel;
@@ -40,8 +41,11 @@ class Products {
   async createProducts(data: any[]): Promise<boolean | number> {
     try {
       const bulkQuery: AnyBulkWriteOperation[] = [];
+      const attributeModel = new AttributeMapping();
+      await attributeModel.init();
+      const mappedAtr = await attributeModel.findFirst({});
       data.forEach((product, key) => {
-        let formattedProduct: IProduct = this.formatProduct(product);
+        let formattedProduct: IProduct = this.formatProduct(product, mappedAtr);
         const query: AnyBulkWriteOperation = {
           updateOne: {
             filter: { sku: formattedProduct.sku },
@@ -59,7 +63,7 @@ class Products {
     }
   }
 
-  formatProduct(data: any): IProduct {
+  formatProduct(data: any, mappedAtr: any): IProduct {
     const product: Partial<IProduct> = {
       title: "",
       description: "",
@@ -78,7 +82,7 @@ class Products {
 
     let additionalDetails: { [key: string]: any } = {};
     Object.keys(data).forEach((key: string) => {
-      const attr = this.mappedAtr[key];
+      const attr = mappedAtr[key];
       if (this.mainAttributes[attr]) {
         product[attr] = this.formatDataTypes(key, data[key]);
       } else {

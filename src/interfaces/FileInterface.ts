@@ -8,7 +8,7 @@ type response = {
 
 interface FileInterface {
   _filePath: string;
-  _logger: pino.Logger;
+  // _logger: pino.Logger;
 
   getData(req: Request, res: Response):any;
 }
